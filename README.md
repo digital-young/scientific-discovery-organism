@@ -1,3 +1,7 @@
+**[🚀 Live Demo → https://scientific-discovery-organism-67lnbkyjhuu8fttjjpgh.streamlit.app](https://scientific-discovery-organism-67lnbkyjhuu8fttjjpgh.streamlit.app)**
+
+---
+
 # 🧬 Scientific Discovery Organism
 
 **A living theory soul** — an immutable, qualia-weighted memory substrate for long-term scientific research.
@@ -23,3 +27,5 @@ python -m venv venv
 source venv/bin/activate    # On Windows: venv\Scripts\activate
 pip install streamlit pandas plotly ollama
 streamlit run science_dashboard.py
+
+Found a bug or have an idea? Open an Issue on GitHub or propose your first Ring in the live demo!
