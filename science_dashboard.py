@@ -61,7 +61,8 @@ with tab2:
 
 with tab3:
     st.subheader("Import Existing Research (PDF)")
-    uploaded_files = st.file_uploader("Upload your manuscript or PDF research", type=["pdf"], accept_multiple_files=True)
+    uploaded_files = st.file_uploader("Upload your manuscript or PDF research", 
+                                      type=["pdf"], accept_multiple_files=True)
     
     if uploaded_files:
         for uploaded_file in uploaded_files:
@@ -72,13 +73,14 @@ with tab3:
                     page_text = page.extract_text()
                     if page_text:
                         text += page_text + "\n\n"
-                edited_text = st.text_area("Extracted text (you can edit)", text[:3000], height=400, key=uploaded_file.name)
-                if st.button(f"Import as Ring → {uploaded_file.name}", key=f"btn_{uploaded_file.name}"):
+                edited_text = st.text_area("Extracted text (you can edit)", text[:4000], height=400, key=f"text_{uploaded_file.name}")
+                
+                if st.button(f"✅ Import as Ring — {uploaded_file.name}", key=f"import_{uploaded_file.name}"):
                     content = f"[Imported PDF: {uploaded_file.name}]\n\n{edited_text}"
                     experiment_data = {"p_value": None, "effect_size": None, "replicated": False, "researcher_note": f"Imported from {uploaded_file.name}"}
                     proposal = tc.propose_scientific_ring(content, experiment_data)
                     tc.append(content, vision=proposal.get("vision"), sensor=LabSensor())
-                    st.success(f"✅ Imported and sealed {uploaded_file.name}!")
+                    st.success(f"✅ Successfully imported and sealed {uploaded_file.name}!")
                     st.rerun()
 
     st.divider()
