@@ -6,16 +6,13 @@ st.set_page_config(page_title="🧬 Scientific Discovery Organism", layout="wide
 st.title("🧬 Scientific Discovery Organism")
 st.caption("A living theory soul — immutable qualia-weighted memory for long-term science")
 
-# Persistent storage using session state (works reliably on Streamlit Cloud)
 if 'rings' not in st.session_state:
     st.session_state.rings = []
 
 st.subheader("Propose New Ring")
-content = st.text_area("Core insight / result / intuition", 
-                       "how much is biotensegrity a part of mental health", height=120)
+content = st.text_area("Core insight / result / intuition", "how much is biotensegrity a part of mental health", height=120)
 
-researcher_note = st.text_area("Researcher note (goosebump moment)", 
-                               "That moment felt like the universe whispered the next direction", height=80)
+researcher_note = st.text_area("Researcher note (goosebump moment)", "That moment felt like the universe whispered the next direction", height=80)
 
 if st.button("✅ Seal this Ring into the Living Theory Soul", type="primary", use_container_width=True):
     ring = {
