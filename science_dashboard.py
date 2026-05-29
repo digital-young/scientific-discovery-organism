@@ -3,6 +3,7 @@ from science_organism import ScientificTimechain, LabSensor
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
+from pypdf import PdfReader
 
 st.set_page_config(page_title="🧬 Scientific Discovery Organism", layout="wide")
 st.title("🧬 Scientific Discovery Organism")
@@ -38,7 +39,7 @@ with tab1:
             researcher_note = response['message']['content']
             st.success("Ollama note generated!")
         except:
-            st.warning("Ollama only works locally. On Streamlit Cloud it is disabled.")
+            st.warning("Ollama only works locally.")
 
     experiment_data = {
         "p_value": p_value,
@@ -52,47 +53,57 @@ with tab1:
         st.json(proposal)
         if st.button("✅ Seal this Ring into the Living Theory Soul"):
             tc.append(content, vision=proposal.get("vision"), sensor=LabSensor())
-            st.success("Ring sealed forever! The organism just grew wiser.")
+            st.success("Ring sealed forever!")
             st.rerun()
 
 with tab2:
     st.subheader("Living Timeline + Search & Filter")
-    
     rings = [r.to_dict() for r in tc] if hasattr(tc, "__iter__") else []
-    
     if rings:
         df = pd.DataFrame(rings)
-        
-        # Search & Filter
-        search_term = st.text_input("🔍 Search rings (content or note)", "")
+        search_term = st.text_input("🔍 Search rings", "")
         if search_term:
             df = df[df["payload"].str.contains(search_term, case=False, na=False)]
-        
-        colA, colB = st.columns(2)
-        with colA:
-            if not df.empty:
-                min_date = pd.to_datetime(df["timestamp"]).min()
-                max_date = pd.to_datetime(df["timestamp"]).max()
-                date_range = st.date_input("Filter by date", [min_date, max_date])
-        
-        # Display
-        st.dataframe(df[["index", "timestamp", "payload", "qualia_state"]], use_container_width=True)
-        
-        # Enhanced chart
+        st.dataframe(df, use_container_width=True)
         fig = px.scatter(df, x="timestamp", y="qualia_state.brightness", 
                          size="qualia_state.salience", color="qualia_state.coherence",
                          hover_data=["payload"], title="Qualia Evolution Over Time")
         st.plotly_chart(fig, use_container_width=True)
-        
-        # CSV Export
         csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Download Full Chain as CSV (Lab Notebook)", csv, "scientific_discovery_chain.csv", "text/csv")
-        
+        st.download_button("📥 Download Full Chain as CSV", csv, "scientific_discovery_chain.csv", "text/csv")
     else:
-        st.info("No rings yet — propose the first discovery in the Propose Ring tab!")
+        st.info("No rings yet — propose the first discovery!")
 
 with tab3:
+    st.subheader("Import Existing Research (PDF)")
+    uploaded_files = st.file_uploader("Upload PDF(s) — lab reports, papers, notes, etc.", 
+                                      type=["pdf"], accept_multiple_files=True)
+    
+    if uploaded_files:
+        for uploaded_file in uploaded_files:
+            st.write(f"**Processing:** {uploaded_file.name}")
+            reader = PdfReader(uploaded_file)
+            text = ""
+            for page in reader.pages:
+                text += page.extract_text() + "\n\n"
+            
+            st.text_area("Extracted text (edit if needed)", text, height=300, key=uploaded_file.name)
+            
+            if st.button(f"✅ Import '{uploaded_file.name}' as Ring", key=f"import_{uploaded_file.name}"):
+                content = f"[Imported from PDF: {uploaded_file.name}]\n\n{text[:2000]}..."  # limit length
+                experiment_data = {
+                    "p_value": None,
+                    "effect_size": None,
+                    "replicated": False,
+                    "researcher_note": f"Imported PDF: {uploaded_file.name}"
+                }
+                proposal = tc.propose_scientific_ring(content, experiment_data)
+                tc.append(content, vision=proposal.get("vision"), sensor=LabSensor())
+                st.success(f"✅ Ring sealed from {uploaded_file.name}!")
+                st.rerun()
+
+    st.divider()
     if st.button("Export full chain as JSON"):
         snapshot = tc.export_json() if hasattr(tc, "export_json") else "{}"
         st.download_button("Download JSON snapshot", snapshot, f"science_snapshot_{int(datetime.now().timestamp())}.json")
-    st.info("Hardware sensor support is built-in (see LabSensor.ingest_hardware_sensor)")
+    st.info("Hardware sensor support is built-in")
