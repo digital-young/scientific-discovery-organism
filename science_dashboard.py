@@ -38,7 +38,7 @@ with tab1:
             researcher_note = response['message']['content']
             st.success("Ollama note generated!")
         except:
-            st.warning("Ollama only works when running locally. On Streamlit Cloud it is disabled.")
+            st.warning("Ollama only works locally. On Streamlit Cloud it is disabled.")
 
     experiment_data = {
         "p_value": p_value,
@@ -56,20 +56,43 @@ with tab1:
             st.rerun()
 
 with tab2:
-    st.subheader("Living Chain Timeline + Qualia Evolution")
+    st.subheader("Living Timeline + Search & Filter")
+    
     rings = [r.to_dict() for r in tc] if hasattr(tc, "__iter__") else []
+    
     if rings:
         df = pd.DataFrame(rings)
-        st.dataframe(df, use_container_width=True)
+        
+        # Search & Filter
+        search_term = st.text_input("🔍 Search rings (content or note)", "")
+        if search_term:
+            df = df[df["payload"].str.contains(search_term, case=False, na=False)]
+        
+        colA, colB = st.columns(2)
+        with colA:
+            if not df.empty:
+                min_date = pd.to_datetime(df["timestamp"]).min()
+                max_date = pd.to_datetime(df["timestamp"]).max()
+                date_range = st.date_input("Filter by date", [min_date, max_date])
+        
+        # Display
+        st.dataframe(df[["index", "timestamp", "payload", "qualia_state"]], use_container_width=True)
+        
+        # Enhanced chart
         fig = px.scatter(df, x="timestamp", y="qualia_state.brightness", 
                          size="qualia_state.salience", color="qualia_state.coherence",
                          hover_data=["payload"], title="Qualia Evolution Over Time")
         st.plotly_chart(fig, use_container_width=True)
+        
+        # CSV Export
+        csv = df.to_csv(index=False).encode('utf-8')
+        st.download_button("📥 Download Full Chain as CSV (Lab Notebook)", csv, "scientific_discovery_chain.csv", "text/csv")
+        
     else:
-        st.info("No rings yet — propose the first discovery!")
+        st.info("No rings yet — propose the first discovery in the Propose Ring tab!")
 
 with tab3:
     if st.button("Export full chain as JSON"):
         snapshot = tc.export_json() if hasattr(tc, "export_json") else "{}"
-        st.download_button("Download snapshot", snapshot, f"science_snapshot_{int(datetime.now().timestamp())}.json")
-    st.info("Hardware sensor support is built-in")
+        st.download_button("Download JSON snapshot", snapshot, f"science_snapshot_{int(datetime.now().timestamp())}.json")
+    st.info("Hardware sensor support is built-in (see LabSensor.ingest_hardware_sensor)")
