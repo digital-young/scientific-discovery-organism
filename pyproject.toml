@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tempre-timechain"
+version = "0.1.0"
+description = "A qualia-native, append-only temporal ledger — Proof-of-Qualia instead of Proof-of-Work"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Hai Kim", email = "hai@tempre.dev"}
+]
+keywords = [
+    "blockchain", "timechain", "qualia", "poq", "temporal", "ledger",
+    "covenant", "sensory", "ai", "consciousness", "prototype"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Artistic Software",
+    "Topic :: System :: Distributed Computing",
+]
+
+# No runtime dependencies — pure standard library
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "black>=24.0",
+]
+docs = []
+
+[project.scripts]
+tempre-demo = "tempre_timechain.demo:main"
+
+[project.urls]
+Homepage = "https://github.com/haikim/tempre-timechain"
+Repository = "https://github.com/haikim/tempre-timechain"
+Issues = "https://github.com/haikim/tempre-timechain/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tempre_timechain*"]
+exclude = ["tests*", "examples*"]
+
+[tool.setuptools.package-data]
+tempre_timechain = ["*.py"]

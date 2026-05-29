@@ -1,0 +1,16 @@
+# Cypher Tempre Timechain - Python Dependencies
+#
+# This project is written in pure Python and uses only the standard library.
+# No external dependencies are required for core functionality.
+#
+# The list below is intentionally empty. It exists so the project is
+# immediately "pip install -r requirements.txt" friendly and for future
+# optional dependencies (e.g. visualization, web UI, numpy for richer
+# sensory data, etc.).
+
+# Core: nothing required beyond Python >= 3.9
+
+# --- Optional / Development ---
+# pytest>=7.0          # For running the test suite
+# black>=24.0          # Code formatting
+# mypy>=1.8            # Static type checking (future)

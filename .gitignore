@@ -1,0 +1,7 @@
+.cargo_bak*
+__pycache__/
+*.pyc
+*.egg-info/
+.DS_Store
+dist/
+build/
