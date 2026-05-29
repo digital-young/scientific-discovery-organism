@@ -1,7 +1,6 @@
 from datetime import datetime
 import json
 from typing import Any, Dict
-import ollama
 from tempre_timechain import Timechain, TemporalSensor
 
 class LabSensor(TemporalSensor):
@@ -18,7 +17,6 @@ class LabSensor(TemporalSensor):
         return self.ingest_vision(enriched) if hasattr(self, "ingest_vision") else enriched
 
     def ingest_hardware_sensor(self, sensor_payload: Dict):
-        """Real lab hardware / IoT sensor support"""
         enriched = {**sensor_payload, "source": "hardware", "timestamp": datetime.now().isoformat()}
         return self.ingest_vision(enriched)
 

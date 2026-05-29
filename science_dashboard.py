@@ -31,15 +31,14 @@ with tab1:
         replicated = st.checkbox("Replicated by another lab")
         researcher_note = st.text_area("Researcher note (goosebump moment)", "That moment felt like the universe whispered the next direction", height=100)
 
-    # Ollama is optional (works locally, disabled on cloud)
-    if st.button("✨ Auto-generate researcher note (Ollama)"):
+    if st.button("✨ Auto-generate researcher note (Ollama - local only)"):
         try:
             import ollama
             response = ollama.chat(model="llama3.2", messages=[{"role": "user", "content": f"Turn this lab result into a vivid goosebump researcher note: p={p_value}, effect={effect_size}, insight={content}"}])
             researcher_note = response['message']['content']
             st.success("Ollama note generated!")
         except:
-            st.warning("Ollama is only available when running locally (requires Ollama server running). On cloud it is disabled.")
+            st.warning("Ollama only works when running locally. On Streamlit Cloud it is disabled.")
 
     experiment_data = {
         "p_value": p_value,
