@@ -16,10 +16,6 @@ class LabSensor(TemporalSensor):
         }
         return self.ingest_vision(enriched) if hasattr(self, "ingest_vision") else enriched
 
-    def ingest_hardware_sensor(self, sensor_payload: Dict):
-        enriched = {**sensor_payload, "source": "hardware", "timestamp": datetime.now().isoformat()}
-        return self.ingest_vision(enriched)
-
 class ScientificTimechain(Timechain):
     def __init__(self, db_path: str = "science_timechain.db", poq_threshold: float = 0.72, **kwargs):
         super().__init__(db_path=db_path, poq_threshold=poq_threshold, **kwargs)
@@ -30,16 +26,7 @@ class ScientificTimechain(Timechain):
         proposal = self.propose(content=content, vision=fused, sensor=sensor)
         return proposal
 
-    def fork_hypothesis(self, hypothesis_name: str):
-        new_db = f"science_chain_{hypothesis_name.lower().replace(' ', '_')}_{int(datetime.now().timestamp())}.db"
-        return ScientificTimechain(new_db)
-
     def export_json(self):
-        """Export the entire chain as JSON (used by dashboard)"""
         rings = [r.to_dict() for r in self] if hasattr(self, "__iter__") else []
-        data = {
-            "domain": getattr(self, "domain", "scientific_discovery"),
-            "rings": rings,
-            "exported_at": datetime.now().isoformat()
-        }
+        data = {"rings": rings, "exported_at": datetime.now().isoformat()}
         return json.dumps(data, indent=2)
