@@ -33,3 +33,13 @@ class ScientificTimechain(Timechain):
     def fork_hypothesis(self, hypothesis_name: str):
         new_db = f"science_chain_{hypothesis_name.lower().replace(' ', '_')}_{int(datetime.now().timestamp())}.db"
         return ScientificTimechain(new_db)
+
+    def export_json(self):
+        """Export the entire chain as JSON (used by dashboard)"""
+        rings = [r.to_dict() for r in self] if hasattr(self, "__iter__") else []
+        data = {
+            "domain": getattr(self, "domain", "scientific_discovery"),
+            "rings": rings,
+            "exported_at": datetime.now().isoformat()
+        }
+        return json.dumps(data, indent=2)
