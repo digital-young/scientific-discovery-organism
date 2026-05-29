@@ -11,10 +11,8 @@ st.caption("A living theory soul — immutable qualia-weighted memory for long-t
 tc = ScientificTimechain("science_timechain.db")
 
 st.subheader("Propose New Ring")
-
 content = st.text_area("Core insight / result / intuition", height=150)
 
-# Paperclip-style PDF upload
 uploaded_file = st.file_uploader("📎 Attach PDF manuscript or research (optional)", type=["pdf"])
 
 if uploaded_file:
@@ -34,16 +32,10 @@ if st.button("✅ Seal this Ring into the Living Theory Soul", type="primary", u
         final_content = f"[Imported PDF: {uploaded_file.name}]\n\n{content}"
     else:
         final_content = content
-    
-    experiment_data = {
-        "p_value": 0.03,
-        "effect_size": 1.2,
-        "replicated": False,
-        "researcher_note": researcher_note,
-    }
+    experiment_data = {"p_value": 0.03, "effect_size": 1.2, "replicated": False, "researcher_note": researcher_note}
     proposal = tc.propose_scientific_ring(final_content, experiment_data)
     tc.append(final_content, vision=proposal.get("vision"), sensor=LabSensor())
-    st.success("✅ Ring sealed forever! The organism just grew wiser.")
+    st.success("✅ Ring sealed forever!")
     st.rerun()
 
 st.divider()
