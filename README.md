@@ -1,3 +1,7 @@
+**[🚀 Live Demo → https://scientific-discovery-organism-67lnbkyjhuu8fttjjpgh.streamlit.app](https://scientific-discovery-organism-67lnbkyjhuu8fttjjpgh.streamlit.app)**
+
+---
+
 # 🧬 Scientific Discovery Organism
 
 **A living theory soul** — an immutable, qualia-weighted memory substrate for long-term scientific research.
