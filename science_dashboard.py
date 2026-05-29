@@ -3,7 +3,6 @@ from science_organism import ScientificTimechain, LabSensor
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
-import ollama
 
 st.set_page_config(page_title="🧬 Scientific Discovery Organism", layout="wide")
 st.title("🧬 Scientific Discovery Organism")
@@ -32,14 +31,15 @@ with tab1:
         replicated = st.checkbox("Replicated by another lab")
         researcher_note = st.text_area("Researcher note (goosebump moment)", "That moment felt like the universe whispered the next direction", height=100)
 
-    # Ollama auto-generate
+    # Ollama is optional (works locally, disabled on cloud)
     if st.button("✨ Auto-generate researcher note (Ollama)"):
         try:
+            import ollama
             response = ollama.chat(model="llama3.2", messages=[{"role": "user", "content": f"Turn this lab result into a vivid goosebump researcher note: p={p_value}, effect={effect_size}, insight={content}"}])
             researcher_note = response['message']['content']
             st.success("Ollama note generated!")
         except:
-            st.error("Start Ollama with: ollama run llama3.2")
+            st.warning("Ollama is only available when running locally (requires Ollama server running). On cloud it is disabled.")
 
     experiment_data = {
         "p_value": p_value,
@@ -73,4 +73,4 @@ with tab3:
     if st.button("Export full chain as JSON"):
         snapshot = tc.export_json() if hasattr(tc, "export_json") else "{}"
         st.download_button("Download snapshot", snapshot, f"science_snapshot_{int(datetime.now().timestamp())}.json")
-    st.info("Hardware sensor support is built-in (see LabSensor.ingest_hardware_sensor)")
+    st.info("Hardware sensor support is built-in")
