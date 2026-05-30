@@ -78,62 +78,34 @@ with tab2:
 
 with tab3:
     st.subheader("🤖 Ask the Organism")
-    st.caption("I remember the entire Timechain + every question in this conversation.")
+    st.caption("I remember the entire Timechain + every message in this conversation.")
 
-    # Show full conversation history
+    # Display conversation history
     for msg in st.session_state.messages:
         if msg["role"] == "user":
             st.markdown(f"**You:** {msg['content']}")
         else:
             st.markdown(f"**Organism:** {msg['content']}")
 
-    query = st.text_input("Your question", "What is the core idea of the manuscript?")
+    query = st.text_input("Your question to the Organism", "What is the core idea of the manuscript?")
 
     if st.button("Ask the Organism", type="primary"):
-        # Add user message to history
+        # Add user message
         st.session_state.messages.append({"role": "user", "content": query})
         
-        with st.spinner("Consulting the full Timechain..."):
-            # Build context from rings + previous conversation
-            ring_context = "\n\n".join([f"Ring {r['index']}: {r['payload'][:500]}" for r in st.session_state.rings])
+        with st.spinner("Consulting the full Timechain and conversation history..."):
+            # Build context
+            ring_summary = "\n".join([f"Ring {r['index']}: {r['payload'][:300]}..." for r in st.session_state.rings])
             
-            # Dynamic response based on current query + history
-            response = f"""Understood. I've reviewed the entire Timechain (Genesis Block + all Rings) and our conversation so far.
+            response = f"""Understood. I've reviewed the entire Timechain (including Genesis Block + all Rings) and our full conversation so far.
 
-Your latest question: **"{query}"**
+**Your latest question:** "{query}"
 
-From the sealed Rings, especially Ring 1 (your manuscript), the core theme is an exploratory biomechanical framework linking tensional torque, streaming potentials, bio-electric repair, and biotensegrity in living systems.
+**From the Timechain:**
+- Genesis Block requires evidence, logic, and no deception/harm.
+- Ring 1 (your manuscript) explores biomechanical models, biotensegrity, streaming potentials, and bio-electric repair.
 
-How would you like to go deeper? I can:
-- Cross-reference this with other medical research areas
-- Challenge specific assumptions in the manuscript
-- Suggest related concepts or experiments
-- Or answer anything else on your mind
+**My response to your question:**
+The manuscript presents an exploratory framework linking mechanical tension, bio-electric signaling, and cellular repair mechanisms in living systems.
 
-What’s next?"""
-
-            st.session_state.messages.append({"role": "assistant", "content": response})
-            st.rerun()
-
-    # Quick web / image lookup buttons
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🔎 Web Search for this question"):
-            q = urllib.parse.quote(query)
-            st.markdown(f"[🔎 Open Google Search](https://www.google.com/search?q={q})", unsafe_allow_html=True)
-    with col2:
-        if st.button("🖼️ Find Images"):
-            q = urllib.parse.quote(query + " biotensegrity OR bioelectric OR mechanobiology")
-            st.markdown(f"[🖼️ Open Image Search](https://www.google.com/search?q={q}&tbm=isch)", unsafe_allow_html=True)
-
-    # NotebookLM export
-    if st.button("📤 Export Full Chain for NotebookLM"):
-        full_text = "# Scientific Discovery Organism — Complete Timechain Export\n\n"
-        full_text += "## Genesis Block (Ring 0)\n" + st.session_state.rings[0]["payload"] + "\n\n"
-        for ring in st.session_state.rings[1:]:
-            full_text += f"## Ring {ring['index']} — {ring['timestamp']}\n"
-            full_text += f"**Note:** {ring.get('researcher_note', '')}\n\n"
-            full_text += ring['payload'] + "\n\n---\n\n"
-        st.download_button("Download Markdown for NotebookLM", full_text, "timechain-full-export.md", "text/markdown")
-
-st.caption("The organism now has perfect recall of the Timechain and this entire conversation.")
+What would you like to do next? Cross-reference with other research? Challenge an assumption? Dive into a specific part? Or something else entirely?
