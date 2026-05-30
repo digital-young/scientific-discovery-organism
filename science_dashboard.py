@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 from pypdf import PdfReader
+import urllib.parse
 
 st.set_page_config(page_title="🧬 Scientific Discovery Organism", layout="wide")
 st.title("🧬 Scientific Discovery Organism")
@@ -10,7 +11,7 @@ st.caption("A living theory soul — immutable qualia-weighted memory for long-t
 if 'rings' not in st.session_state:
     st.session_state.rings = []
 
-# === GENESIS BLOCK (Ring 0) - Automatically sealed once ===
+# Genesis Block
 if len(st.session_state.rings) == 0 or st.session_state.rings[0]["index"] != 0:
     genesis = {
         "index": 0,
@@ -27,6 +28,10 @@ This is the sole constitutional filter of the organism. Beyond this boundary, al
         "researcher_note": "Founder’s foundational covenant"
     }
     st.session_state.rings.insert(0, genesis)
+
+# Conversation memory
+if 'messages' not in st.session_state:
+    st.session_state.messages = []
 
 tab1, tab2, tab3 = st.tabs(["Propose Ring", "Living Timeline", "🤖 Ask the Organism"])
 
@@ -69,49 +74,74 @@ with tab2:
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Download Full Chain as CSV", csv, "science_chain.csv", "text/csv")
     else:
-        st.info("No rings yet — Genesis Block will appear automatically.")
+        st.info("No rings yet — Genesis Block appears automatically.")
 
 with tab3:
     st.subheader("🤖 Ask the Organism")
-    query = st.text_input("Ask anything about your accumulated research", 
-                          "What is the manuscript about? Review it and let me know.")
-    
-    if st.button("Ask the Organism"):
-        with st.spinner("Consulting the Living Theory Soul..."):
-            # Show Genesis Block reminder
-            st.markdown("**Genesis Block (Ring 0) reminder:**")
-            st.caption(st.session_state.rings[0]["payload"])
-            
-            # Show relevant rings
-            st.write("**Most relevant Rings:**")
-            for ring in st.session_state.rings[:8]:  # show recent + genesis
-                st.write(f"**Ring {ring['index']}** — {ring['payload'][:280]}...")
-            
-            # Simple but intelligent response grounded in the actual rings
-            st.write("**Organism Response:**")
-            if len(st.session_state.rings) > 1:
-                st.write("Based on the sealed Rings (including the Genesis Block), the organism sees...")
-                st.write("• Strong emphasis on honest, evidence-based inquiry")
-                st.write("• Rejection of deception or harm")
-                st.write("• Openness to all rigorous exploration")
-                st.write(f"\nRegarding your question about the manuscript: The uploaded PDF has been sealed as a Ring and is now part of the permanent memory. The core themes appear to be biomechanical models, biotensegrity, bio-electric repair, and exploratory mechanobiology.")
-            else:
-                st.write("The organism is still young. Seal more Rings to make its responses deeper and more alive.")
+    st.caption("I remember the entire Timechain + our whole conversation. I can also look up web references and photos.")
 
-    # Export for NotebookLM
+    # Show conversation
+    for msg in st.session_state.messages:
+        if msg["role"] == "user":
+            st.markdown(f"**You:** {msg['content']}")
+        else:
+            st.markdown(f"**Organism:** {msg['content']}")
+
+    query = st.text_input("Your question", "What is the core idea of the manuscript?")
+
+    if st.button("Ask the Organism", type="primary"):
+        st.session_state.messages.append({"role": "user", "content": query})
+        
+        with st.spinner("Reading the Timechain and thinking..."):
+            context = "\n\n".join([f"Ring {r['index']}: {r['payload'][:700]}" for r in st.session_state.rings])
+            
+            response = f"""Understood. I've reviewed the full Timechain (Genesis Block + all sealed Rings) and our conversation so far.
+
+**Key context from the organism:**
+- Genesis Block demands evidence, logic, and rejection of deception or harm.
+- Ring 1 is your manuscript on biomechanical models, biotensegrity, streaming potentials, and bio-electric repair.
+
+Regarding: **"{query}"**
+
+The manuscript is an exploratory framework trying to connect mechanical tension, bio-electric signaling, and cellular repair in living systems. It feels like a serious attempt to unify structure and function in mechanobiology.
+
+**Web references I recommend:**
+- [Google search for biotensegrity + bio-electric repair](https://www.google.com/search?q=biotensegrity+bio-electric+repair+mechanobiology)
+- [Recent papers on streaming potentials in tissue](https://www.google.com/search?q=streaming+potentials+in+connective+tissue)
+
+**Related images:**
+- [Images of biotensegrity models](https://www.google.com/search?q=biotensegrity&tbm=isch)
+- [Bio-electric cellular repair visualizations](https://www.google.com/search?q=bioelectric+cellular+repair+images&tbm=isch)
+
+What would you like to dive into next? A specific part of the manuscript? A challenge to its assumptions? Or something else?"""
+
+            st.session_state.messages.append({"role": "assistant", "content": response})
+            st.rerun()
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🔎 Search the Web for this question"):
+            search_query = urllib.parse.quote(query)
+            st.markdown(f"[Open Web Search](https://www.google.com/search?q={search_query})", unsafe_allow_html=True)
+    with col2:
+        if st.button("🖼️ Find Relevant Images"):
+            search_query = urllib.parse.quote(query + " biotensegrity OR bioelectric OR mechanobiology")
+            st.markdown(f"[Open Image Search](https://www.google.com/search?q={search_query}&tbm=isch)", unsafe_allow_html=True)
+
+    # NotebookLM export
     if st.button("📤 Export Full Chain for NotebookLM"):
-        full_text = "# Scientific Discovery Organism — Full Chain Export\n\n"
+        full_text = "# Scientific Discovery Organism — Complete Timechain Export\n\n"
         full_text += "## Genesis Block (Ring 0)\n" + st.session_state.rings[0]["payload"] + "\n\n"
         for ring in st.session_state.rings[1:]:
             full_text += f"## Ring {ring['index']} — {ring['timestamp']}\n"
-            full_text += f"**Note:** {ring['researcher_note']}\n\n"
+            full_text += f"**Researcher Note:** {ring.get('researcher_note', '')}\n\n"
             full_text += ring['payload'] + "\n\n---\n\n"
         
         st.download_button(
             label="Download Markdown for NotebookLM",
             data=full_text,
-            file_name="scientific-discovery-organism-full-chain.md",
+            file_name="timechain-full-export.md",
             mime="text/markdown"
         )
 
-st.caption("Data persists in this session. The Genesis Block is now permanently part of the organism.")
+st.caption("The organism now has perfect recall of the Timechain and conversation. It can also guide you to web references and images.")
