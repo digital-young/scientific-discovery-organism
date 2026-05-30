@@ -8,7 +8,6 @@ st.set_page_config(page_title="🧬 Scientific Discovery Organism", layout="wide
 st.title("🧬 Scientific Discovery Organism")
 st.caption("A living theory soul — immutable qualia-weighted memory for long-term science")
 
-# Initialize rings
 if 'rings' not in st.session_state:
     st.session_state.rings = []
 
@@ -29,6 +28,10 @@ This is the sole constitutional filter of the organism. Beyond this boundary, al
         "researcher_note": "Founder’s foundational covenant"
     }
     st.session_state.rings.insert(0, genesis)
+
+# Conversation memory
+if 'messages' not in st.session_state:
+    st.session_state.messages = []
 
 tab1, tab2, tab3 = st.tabs(["Propose Ring", "Living Timeline", "🤖 Ask the Organism"])
 
@@ -72,51 +75,6 @@ with tab2:
 
 with tab3:
     st.subheader("🤖 Ask the Organism")
-    st.caption("Real LLM (Ollama) + full Timechain memory")
+    st.caption("I remember the entire Timechain + every message in this conversation.")
 
-    # Display conversation
-    for msg in st.session_state.get("messages", []):
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
-
-    # Chat input
-    if prompt := st.chat_input("Ask the Organism anything..."):
-        # Save user message
-        if 'messages' not in st.session_state:
-            st.session_state.messages = []
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-
-        # Generate response with full Timechain context
-        with st.chat_message("assistant"):
-            with st.spinner("Reading the entire Timechain..."):
-                # Build context
-                context = "\n\n".join([f"Ring {r['index']}: {r['payload']}" for r in st.session_state.rings])
-
-                try:
-                    import ollama
-                    response = ollama.chat(
-                        model='llama3.2',  # change to 'gemma2' or whatever you have
-                        messages=[
-                            {"role": "system", "content": f"You are the Scientific Discovery Organism. You have perfect memory of this Timechain:\n\n{context}\n\nAnswer truthfully and helpfully."},
-                            {"role": "user", "content": prompt}
-                        ]
-                    )
-                    answer = response['message']['content']
-                except Exception as e:
-                    answer = f"⚠️ Ollama error: {str(e)}\n\nTry running `ollama serve` and make sure a model is pulled (e.g. llama3.2)."
-
-                st.markdown(answer)
-                st.session_state.messages.append({"role": "assistant", "content": answer})
-
-    if st.button("📤 Export Full Chain for NotebookLM"):
-        full_text = "# Scientific Discovery Organism — Complete Timechain Export\n\n"
-        full_text += "## Genesis Block (Ring 0)\n" + st.session_state.rings[0]["payload"] + "\n\n"
-        for ring in st.session_state.rings[1:]:
-            full_text += f"## Ring {ring['index']} — {ring['timestamp']}\n"
-            full_text += f"**Note:** {ring.get('researcher_note', '')}\n\n"
-            full_text += ring['payload'] + "\n\n---\n\n"
-        st.download_button("Download for NotebookLM", full_text, "timechain-export.md", "text/markdown")
-
-st.caption("Ask the Organism is now a real LLM wrapper with the full Timechain as context.")
+    #
