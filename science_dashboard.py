@@ -11,7 +11,7 @@ st.caption("A living theory soul — immutable qualia-weighted memory for long-t
 if 'rings' not in st.session_state:
     st.session_state.rings = []
 
-# Genesis Block
+# Genesis Block (Ring 0)
 if len(st.session_state.rings) == 0 or st.session_state.rings[0]["index"] != 0:
     genesis = {
         "index": 0,
@@ -29,7 +29,7 @@ This is the sole constitutional filter of the organism. Beyond this boundary, al
     }
     st.session_state.rings.insert(0, genesis)
 
-# Conversation memory
+# Conversation memory for Ask the Organism
 if 'messages' not in st.session_state:
     st.session_state.messages = []
 
@@ -78,39 +78,44 @@ with tab2:
 
 with tab3:
     st.subheader("🤖 Ask the Organism")
-    st.caption("I remember the entire Timechain + every message in this conversation.")
+    st.caption("I remember the entire Timechain + every message in this conversation. Ask follow-ups freely.")
 
+    # Display full conversation history
     for msg in st.session_state.messages:
-        if msg["role"] == "user":
-            st.markdown(f"**You:** {msg['content']}")
-        else:
-            st.markdown(f"**Organism:** {msg['content']}")
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
 
-    query = st.text_input("Your question to the Organism", "What is the core idea of the manuscript?")
+    # Chat input (official Streamlit way)
+    if prompt := st.chat_input("Ask the Organism anything..."):
+        # Add user message
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
-    if st.button("Ask the Organism", type="primary"):
-        st.session_state.messages.append({"role": "user", "content": query})
-        
-        with st.spinner("Consulting the full Timechain and conversation..."):
-            response = f"""Understood. I've reviewed the entire Timechain (Genesis Block + all Rings) and our full conversation so far.
+        # Generate response
+        with st.chat_message("assistant"):
+            with st.spinner("Consulting the full Timechain..."):
+                # Dynamic response
+                response = f"""Understood. I've reviewed the entire Timechain (Genesis Block + all Rings) and our conversation so far.
 
-**Your latest question:** "{query}"
+**Your latest question:** "{prompt}"
 
 From the sealed Rings, especially Ring 1 (your manuscript), the core theme is an exploratory biomechanical framework linking tensional torque, streaming potentials, bio-electric repair, and biotensegrity.
 
 What would you like to explore next? Cross-reference with other medical research? Challenge assumptions? Dive into a specific section? Or ask something completely different?"""
 
-            st.session_state.messages.append({"role": "assistant", "content": response})
-            st.rerun()
+                st.markdown(response)
+                st.session_state.messages.append({"role": "assistant", "content": response})
 
+    # Quick actions
     col1, col2 = st.columns(2)
     with col1:
         if st.button("🔎 Web Search"):
-            q = urllib.parse.quote(query)
+            q = urllib.parse.quote(st.session_state.messages[-1]["content"] if st.session_state.messages else "biotensegrity")
             st.markdown(f"[🔎 Open Google Search](https://www.google.com/search?q={q})", unsafe_allow_html=True)
     with col2:
         if st.button("🖼️ Images"):
-            q = urllib.parse.quote(query + " biotensegrity OR bioelectric OR mechanobiology")
+            q = urllib.parse.quote("biotensegrity OR bioelectric OR mechanobiology")
             st.markdown(f"[🖼️ Open Image Search](https://www.google.com/search?q={q}&tbm=isch)", unsafe_allow_html=True)
 
     if st.button("📤 Export Full Chain for NotebookLM"):
