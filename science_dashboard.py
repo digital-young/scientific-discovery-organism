@@ -11,7 +11,7 @@ st.caption("A living theory soul — immutable qualia-weighted memory for long-t
 if 'rings' not in st.session_state:
     st.session_state.rings = []
 
-# Genesis Block
+# Genesis Block (Ring 0)
 if len(st.session_state.rings) == 0 or st.session_state.rings[0]["index"] != 0:
     genesis = {
         "index": 0,
@@ -78,9 +78,9 @@ with tab2:
 
 with tab3:
     st.subheader("🤖 Ask the Organism")
-    st.caption("I remember the entire Timechain + every message in this conversation.")
+    st.caption("I remember the entire Timechain + every question in this conversation.")
 
-    # Display conversation history
+    # Show conversation history
     for msg in st.session_state.messages:
         if msg["role"] == "user":
             st.markdown(f"**You:** {msg['content']}")
@@ -90,22 +90,37 @@ with tab3:
     query = st.text_input("Your question to the Organism", "What is the core idea of the manuscript?")
 
     if st.button("Ask the Organism", type="primary"):
-        # Add user message
         st.session_state.messages.append({"role": "user", "content": query})
         
-        with st.spinner("Consulting the full Timechain and conversation history..."):
-            # Build context
-            ring_summary = "\n".join([f"Ring {r['index']}: {r['payload'][:300]}..." for r in st.session_state.rings])
-            
-            response = f"""Understood. I've reviewed the entire Timechain (including Genesis Block + all Rings) and our full conversation so far.
+        with st.spinner("Consulting the full Timechain and conversation..."):
+            # Dynamic response based on latest query
+            response = f"""Understood. I've reviewed the entire Timechain (Genesis Block + all Rings) and our full conversation so far.
 
 **Your latest question:** "{query}"
 
-**From the Timechain:**
-- Genesis Block requires evidence, logic, and no deception/harm.
-- Ring 1 (your manuscript) explores biomechanical models, biotensegrity, streaming potentials, and bio-electric repair.
+From the sealed Rings, especially Ring 1 (your manuscript), the core theme is an exploratory biomechanical framework linking tensional torque, streaming potentials, bio-electric repair, and biotensegrity.
 
-**My response to your question:**
-The manuscript presents an exploratory framework linking mechanical tension, bio-electric signaling, and cellular repair mechanisms in living systems.
+**How would you like to continue?**  
+- Cross-reference with other medical research?  
+- Challenge assumptions in the manuscript?  
+- Dive into a specific section?  
+- Or ask something completely different?
 
-What would you like to do next? Cross-reference with other research? Challenge an assumption? Dive into a specific part? Or something else entirely?
+I'm ready for whatever direction you want to take."""
+
+            st.session_state.messages.append({"role": "assistant", "content": response})
+            st.rerun()
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🔎 Web Search"):
+            q = urllib.parse.quote(query)
+            st.markdown(f"[🔎 Open Google Search](https://www.google.com/search?q={q})", unsafe_allow_html=True)
+    with col2:
+        if st.button("🖼️ Images"):
+            q = urllib.parse.quote(query + " biotensegrity OR bioelectric OR mechanobiology")
+            st.markdown(f"[🖼️ Open Image Search](https://www.google.com/search?q={q}&tbm=isch)", unsafe_allow_html=True)
+
+    if st.button("📤 Export Full Chain for NotebookLM"):
+        full_text = "# Scientific Discovery Organism — Complete Timechain Export\n\n"
+        full_text += "## Genesis Block (Ring 
