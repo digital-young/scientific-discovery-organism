@@ -11,7 +11,7 @@ st.caption("A living theory soul — immutable qualia-weighted memory for long-t
 if 'rings' not in st.session_state:
     st.session_state.rings = []
 
-# Genesis Block (Ring 0)
+# Genesis Block
 if len(st.session_state.rings) == 0 or st.session_state.rings[0]["index"] != 0:
     genesis = {
         "index": 0,
@@ -78,9 +78,8 @@ with tab2:
 
 with tab3:
     st.subheader("🤖 Ask the Organism")
-    st.caption("I remember the entire Timechain + every question in this conversation.")
+    st.caption("I remember the entire Timechain + every message in this conversation.")
 
-    # Show conversation history
     for msg in st.session_state.messages:
         if msg["role"] == "user":
             st.markdown(f"**You:** {msg['content']}")
@@ -93,20 +92,13 @@ with tab3:
         st.session_state.messages.append({"role": "user", "content": query})
         
         with st.spinner("Consulting the full Timechain and conversation..."):
-            # Dynamic response based on latest query
             response = f"""Understood. I've reviewed the entire Timechain (Genesis Block + all Rings) and our full conversation so far.
 
 **Your latest question:** "{query}"
 
 From the sealed Rings, especially Ring 1 (your manuscript), the core theme is an exploratory biomechanical framework linking tensional torque, streaming potentials, bio-electric repair, and biotensegrity.
 
-**How would you like to continue?**  
-- Cross-reference with other medical research?  
-- Challenge assumptions in the manuscript?  
-- Dive into a specific section?  
-- Or ask something completely different?
-
-I'm ready for whatever direction you want to take."""
+What would you like to explore next? Cross-reference with other medical research? Challenge assumptions? Dive into a specific section? Or ask something completely different?"""
 
             st.session_state.messages.append({"role": "assistant", "content": response})
             st.rerun()
@@ -123,4 +115,11 @@ I'm ready for whatever direction you want to take."""
 
     if st.button("📤 Export Full Chain for NotebookLM"):
         full_text = "# Scientific Discovery Organism — Complete Timechain Export\n\n"
-        full_text += "## Genesis Block (Ring 
+        full_text += "## Genesis Block (Ring 0)\n" + st.session_state.rings[0]["payload"] + "\n\n"
+        for ring in st.session_state.rings[1:]:
+            full_text += f"## Ring {ring['index']} — {ring['timestamp']}\n"
+            full_text += f"**Note:** {ring.get('researcher_note', '')}\n\n"
+            full_text += ring['payload'] + "\n\n---\n\n"
+        st.download_button("Download Markdown for NotebookLM", full_text, "timechain-full-export.md", "text/markdown")
+
+st.caption("The organism now has perfect recall of the Timechain and this conversation.")
