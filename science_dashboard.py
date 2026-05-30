@@ -8,10 +8,11 @@ st.set_page_config(page_title="🧬 Scientific Discovery Organism", layout="wide
 st.title("🧬 Scientific Discovery Organism")
 st.caption("A living theory soul — immutable qualia-weighted memory for long-term science")
 
+# Initialize rings
 if 'rings' not in st.session_state:
     st.session_state.rings = []
 
-# Genesis Block (Ring 0)
+# Genesis Block
 if len(st.session_state.rings) == 0 or st.session_state.rings[0]["index"] != 0:
     genesis = {
         "index": 0,
@@ -28,10 +29,6 @@ This is the sole constitutional filter of the organism. Beyond this boundary, al
         "researcher_note": "Founder’s foundational covenant"
     }
     st.session_state.rings.insert(0, genesis)
-
-# Conversation memory for Ask the Organism
-if 'messages' not in st.session_state:
-    st.session_state.messages = []
 
 tab1, tab2, tab3 = st.tabs(["Propose Ring", "Living Timeline", "🤖 Ask the Organism"])
 
@@ -67,9 +64,6 @@ with tab2:
     st.subheader("Living Timeline")
     if st.session_state.rings:
         df = pd.DataFrame(st.session_state.rings)
-        search = st.text_input("🔍 Search rings", "")
-        if search:
-            df = df[df["payload"].str.contains(search, case=False, na=False)]
         st.dataframe(df, use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Download Full Chain as CSV", csv, "science_chain.csv", "text/csv")
@@ -78,45 +72,43 @@ with tab2:
 
 with tab3:
     st.subheader("🤖 Ask the Organism")
-    st.caption("I remember the entire Timechain + every message in this conversation. Ask follow-ups freely.")
+    st.caption("Real LLM (Ollama) + full Timechain memory")
 
-    # Display full conversation history
-    for msg in st.session_state.messages:
+    # Display conversation
+    for msg in st.session_state.get("messages", []):
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    # Chat input (official Streamlit way)
+    # Chat input
     if prompt := st.chat_input("Ask the Organism anything..."):
-        # Add user message
+        # Save user message
+        if 'messages' not in st.session_state:
+            st.session_state.messages = []
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Generate response
+        # Generate response with full Timechain context
         with st.chat_message("assistant"):
-            with st.spinner("Consulting the full Timechain..."):
-                # Dynamic response
-                response = f"""Understood. I've reviewed the entire Timechain (Genesis Block + all Rings) and our conversation so far.
+            with st.spinner("Reading the entire Timechain..."):
+                # Build context
+                context = "\n\n".join([f"Ring {r['index']}: {r['payload']}" for r in st.session_state.rings])
 
-**Your latest question:** "{prompt}"
+                try:
+                    import ollama
+                    response = ollama.chat(
+                        model='llama3.2',  # change to 'gemma2' or whatever you have
+                        messages=[
+                            {"role": "system", "content": f"You are the Scientific Discovery Organism. You have perfect memory of this Timechain:\n\n{context}\n\nAnswer truthfully and helpfully."},
+                            {"role": "user", "content": prompt}
+                        ]
+                    )
+                    answer = response['message']['content']
+                except Exception as e:
+                    answer = f"⚠️ Ollama error: {str(e)}\n\nTry running `ollama serve` and make sure a model is pulled (e.g. llama3.2)."
 
-From the sealed Rings, especially Ring 1 (your manuscript), the core theme is an exploratory biomechanical framework linking tensional torque, streaming potentials, bio-electric repair, and biotensegrity.
-
-What would you like to explore next? Cross-reference with other medical research? Challenge assumptions? Dive into a specific section? Or ask something completely different?"""
-
-                st.markdown(response)
-                st.session_state.messages.append({"role": "assistant", "content": response})
-
-    # Quick actions
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🔎 Web Search"):
-            q = urllib.parse.quote(st.session_state.messages[-1]["content"] if st.session_state.messages else "biotensegrity")
-            st.markdown(f"[🔎 Open Google Search](https://www.google.com/search?q={q})", unsafe_allow_html=True)
-    with col2:
-        if st.button("🖼️ Images"):
-            q = urllib.parse.quote("biotensegrity OR bioelectric OR mechanobiology")
-            st.markdown(f"[🖼️ Open Image Search](https://www.google.com/search?q={q}&tbm=isch)", unsafe_allow_html=True)
+                st.markdown(answer)
+                st.session_state.messages.append({"role": "assistant", "content": answer})
 
     if st.button("📤 Export Full Chain for NotebookLM"):
         full_text = "# Scientific Discovery Organism — Complete Timechain Export\n\n"
@@ -125,6 +117,6 @@ What would you like to explore next? Cross-reference with other medical research
             full_text += f"## Ring {ring['index']} — {ring['timestamp']}\n"
             full_text += f"**Note:** {ring.get('researcher_note', '')}\n\n"
             full_text += ring['payload'] + "\n\n---\n\n"
-        st.download_button("Download Markdown for NotebookLM", full_text, "timechain-full-export.md", "text/markdown")
+        st.download_button("Download for NotebookLM", full_text, "timechain-export.md", "text/markdown")
 
-st.caption("The organism now has perfect recall of the Timechain and this conversation.")
+st.caption("Ask the Organism is now a real LLM wrapper with the full Timechain as context.")
