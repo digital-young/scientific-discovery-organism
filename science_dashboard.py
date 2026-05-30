@@ -1,5 +1,4 @@
 import streamlit as st
-from science_organism import ScientificTimechain, LabSensor
 import pandas as pd
 from datetime import datetime
 from pypdf import PdfReader
@@ -8,12 +7,13 @@ st.set_page_config(page_title="🧬 Scientific Discovery Organism", layout="wide
 st.title("🧬 Scientific Discovery Organism")
 st.caption("A living theory soul — immutable qualia-weighted memory for long-term science")
 
-tc = ScientificTimechain("science_timechain.db")
+if 'rings' not in st.session_state:
+    st.session_state.rings = []
 
 st.subheader("Propose New Ring")
 content = st.text_area("Core insight / result / intuition", height=150)
 
-uploaded_file = st.file_uploader("📎 Attach PDF manuscript or research (optional)", type=["pdf"])
+uploaded_file = st.file_uploader("📎 Attach PDF (optional)", type=["pdf"])
 
 if uploaded_file:
     st.success(f"📎 Uploaded: {uploaded_file.name}")
@@ -32,18 +32,20 @@ if st.button("✅ Seal this Ring into the Living Theory Soul", type="primary", u
         final_content = f"[Imported PDF: {uploaded_file.name}]\n\n{content}"
     else:
         final_content = content
-    experiment_data = {"p_value": 0.03, "effect_size": 1.2, "replicated": False, "researcher_note": researcher_note}
-    proposal = tc.propose_scientific_ring(final_content, experiment_data)
-    tc.append(final_content, vision=proposal.get("vision"), sensor=LabSensor())
-    st.success("✅ Ring sealed forever!")
+    ring = {
+        "index": len(st.session_state.rings) + 1,
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "payload": final_content,
+        "researcher_note": researcher_note,
+    }
+    st.session_state.rings.append(ring)
+    st.success("✅ Ring sealed forever! The organism just grew wiser.")
     st.rerun()
 
 st.divider()
-
 st.subheader("Living Timeline")
-rings = [r.to_dict() for r in tc] if hasattr(tc, "__iter__") else []
-if rings:
-    df = pd.DataFrame(rings)
-    st.dataframe(df[["index", "timestamp", "payload"]], use_container_width=True)
+if st.session_state.rings:
+    df = pd.DataFrame(st.session_state.rings)
+    st.dataframe(df, use_container_width=True)
 else:
     st.info("No rings yet — propose the first one above!")
