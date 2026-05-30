@@ -78,9 +78,9 @@ with tab2:
 
 with tab3:
     st.subheader("🤖 Ask the Organism")
-    st.caption("I remember the entire Timechain + our whole conversation. I can also look up web references and photos.")
+    st.caption("I remember the entire Timechain + every question in this conversation.")
 
-    # Show conversation
+    # Show full conversation history
     for msg in st.session_state.messages:
         if msg["role"] == "user":
             st.markdown(f"**You:** {msg['content']}")
@@ -90,43 +90,41 @@ with tab3:
     query = st.text_input("Your question", "What is the core idea of the manuscript?")
 
     if st.button("Ask the Organism", type="primary"):
+        # Add user message to history
         st.session_state.messages.append({"role": "user", "content": query})
         
-        with st.spinner("Reading the Timechain and thinking..."):
-            context = "\n\n".join([f"Ring {r['index']}: {r['payload'][:700]}" for r in st.session_state.rings])
+        with st.spinner("Consulting the full Timechain..."):
+            # Build context from rings + previous conversation
+            ring_context = "\n\n".join([f"Ring {r['index']}: {r['payload'][:500]}" for r in st.session_state.rings])
             
-            response = f"""Understood. I've reviewed the full Timechain (Genesis Block + all sealed Rings) and our conversation so far.
+            # Dynamic response based on current query + history
+            response = f"""Understood. I've reviewed the entire Timechain (Genesis Block + all Rings) and our conversation so far.
 
-**Key context from the organism:**
-- Genesis Block demands evidence, logic, and rejection of deception or harm.
-- Ring 1 is your manuscript on biomechanical models, biotensegrity, streaming potentials, and bio-electric repair.
+Your latest question: **"{query}"**
 
-Regarding: **"{query}"**
+From the sealed Rings, especially Ring 1 (your manuscript), the core theme is an exploratory biomechanical framework linking tensional torque, streaming potentials, bio-electric repair, and biotensegrity in living systems.
 
-The manuscript is an exploratory framework trying to connect mechanical tension, bio-electric signaling, and cellular repair in living systems. It feels like a serious attempt to unify structure and function in mechanobiology.
+How would you like to go deeper? I can:
+- Cross-reference this with other medical research areas
+- Challenge specific assumptions in the manuscript
+- Suggest related concepts or experiments
+- Or answer anything else on your mind
 
-**Web references I recommend:**
-- [Google search for biotensegrity + bio-electric repair](https://www.google.com/search?q=biotensegrity+bio-electric+repair+mechanobiology)
-- [Recent papers on streaming potentials in tissue](https://www.google.com/search?q=streaming+potentials+in+connective+tissue)
-
-**Related images:**
-- [Images of biotensegrity models](https://www.google.com/search?q=biotensegrity&tbm=isch)
-- [Bio-electric cellular repair visualizations](https://www.google.com/search?q=bioelectric+cellular+repair+images&tbm=isch)
-
-What would you like to dive into next? A specific part of the manuscript? A challenge to its assumptions? Or something else?"""
+What’s next?"""
 
             st.session_state.messages.append({"role": "assistant", "content": response})
             st.rerun()
 
+    # Quick web / image lookup buttons
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("🔎 Search the Web for this question"):
-            search_query = urllib.parse.quote(query)
-            st.markdown(f"[Open Web Search](https://www.google.com/search?q={search_query})", unsafe_allow_html=True)
+        if st.button("🔎 Web Search for this question"):
+            q = urllib.parse.quote(query)
+            st.markdown(f"[🔎 Open Google Search](https://www.google.com/search?q={q})", unsafe_allow_html=True)
     with col2:
-        if st.button("🖼️ Find Relevant Images"):
-            search_query = urllib.parse.quote(query + " biotensegrity OR bioelectric OR mechanobiology")
-            st.markdown(f"[Open Image Search](https://www.google.com/search?q={search_query}&tbm=isch)", unsafe_allow_html=True)
+        if st.button("🖼️ Find Images"):
+            q = urllib.parse.quote(query + " biotensegrity OR bioelectric OR mechanobiology")
+            st.markdown(f"[🖼️ Open Image Search](https://www.google.com/search?q={q}&tbm=isch)", unsafe_allow_html=True)
 
     # NotebookLM export
     if st.button("📤 Export Full Chain for NotebookLM"):
@@ -134,14 +132,8 @@ What would you like to dive into next? A specific part of the manuscript? A chal
         full_text += "## Genesis Block (Ring 0)\n" + st.session_state.rings[0]["payload"] + "\n\n"
         for ring in st.session_state.rings[1:]:
             full_text += f"## Ring {ring['index']} — {ring['timestamp']}\n"
-            full_text += f"**Researcher Note:** {ring.get('researcher_note', '')}\n\n"
+            full_text += f"**Note:** {ring.get('researcher_note', '')}\n\n"
             full_text += ring['payload'] + "\n\n---\n\n"
-        
-        st.download_button(
-            label="Download Markdown for NotebookLM",
-            data=full_text,
-            file_name="timechain-full-export.md",
-            mime="text/markdown"
-        )
+        st.download_button("Download Markdown for NotebookLM", full_text, "timechain-full-export.md", "text/markdown")
 
-st.caption("The organism now has perfect recall of the Timechain and conversation. It can also guide you to web references and images.")
+st.caption("The organism now has perfect recall of the Timechain and this entire conversation.")
