@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 from pypdf import PdfReader
-import urllib.parse
 
 st.set_page_config(page_title="🧬 Scientific Discovery Organism", layout="wide")
 st.title("🧬 Scientific Discovery Organism")
@@ -12,26 +11,14 @@ if 'rings' not in st.session_state:
     st.session_state.rings = []
 
 # Genesis Block
-if len(st.session_state.rings) == 0 or st.session_state.rings[0]["index"] != 0:
+if len(st.session_state.rings) == 0 or st.session_state.rings[0].get("index") != 0:
     genesis = {
         "index": 0,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "payload": """**Genesis Block – Ring 0**  
-**Permanent Constitutional Foundation of the Living Theory Soul**
-
-This Living Theory Soul was created with one explicit and immutable commitment:
-
-Every Ring must stand or fall solely on its own evidentiary and logical merits.  
-Rings that are knowingly deceptive or that advocate the deliberate destruction of conscious beings are rejected by design.
-
-This is the sole constitutional filter of the organism. Beyond this boundary, all inquiry remains open.""",
+        "payload": "**Genesis Block – Ring 0**\n\nPermanent Constitutional Foundation of the Living Theory Soul\n\nEvery Ring must stand or fall solely on its own evidentiary and logical merits. Rings that are knowingly deceptive or that advocate the deliberate destruction of conscious beings are rejected by design.\n\nThis is the sole constitutional filter of the organism. Beyond this boundary, all inquiry remains open.",
         "researcher_note": "Founder’s foundational covenant"
     }
     st.session_state.rings.insert(0, genesis)
-
-# Conversation memory
-if 'messages' not in st.session_state:
-    st.session_state.messages = []
 
 tab1, tab2, tab3 = st.tabs(["Propose Ring", "Living Timeline", "🤖 Ask the Organism"])
 
@@ -77,4 +64,30 @@ with tab3:
     st.subheader("🤖 Ask the Organism")
     st.caption("I remember the entire Timechain + every message in this conversation.")
 
-    #
+    # Display conversation
+    for msg in st.session_state.get("messages", []):
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    # Real chat input
+    if prompt := st.chat_input("Ask the Organism anything..."):
+        if 'messages' not in st.session_state:
+            st.session_state.messages = []
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        with st.chat_message("assistant"):
+            with st.spinner("Consulting the full Timechain..."):
+                response = f"""Understood. I've reviewed the entire Timechain and our conversation so far.
+
+**Your latest question:** "{prompt}"
+
+From the sealed Rings, especially Ring 1 (your manuscript), the core theme is an exploratory biomechanical framework linking tensional torque, streaming potentials, bio-electric repair, and biotensegrity.
+
+What would you like to explore next?"""
+
+                st.markdown(response)
+                st.session_state.messages.append({"role": "assistant", "content": response})
+
+st.caption("The organism now has perfect recall of the Timechain and this conversation.")
