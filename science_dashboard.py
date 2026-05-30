@@ -7,8 +7,28 @@ st.set_page_config(page_title="🧬 Scientific Discovery Organism", layout="wide
 st.title("🧬 Scientific Discovery Organism")
 st.caption("A living theory soul — immutable qualia-weighted memory for long-term science")
 
+# Persistent rings in session state
 if 'rings' not in st.session_state:
     st.session_state.rings = []
+
+# === GENESIS BLOCK (Ring 0) - Automatically sealed on first run ===
+if len(st.session_state.rings) == 0:
+    genesis_ring = {
+        "index": 0,
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "payload": """**Genesis Block – Ring 0**  
+**Permanent Constitutional Foundation of the Living Theory Soul**
+
+This Living Theory Soul was created with one explicit and immutable commitment:
+
+Every Ring must stand or fall solely on its own evidentiary and logical merits.  
+Rings that are knowingly deceptive or that advocate the deliberate destruction of conscious beings are rejected by design.
+
+This is the sole constitutional filter of the organism. Beyond this boundary, all inquiry remains open.""",
+        "researcher_note": "Founder’s foundational covenant — sealed as the first immutable Ring"
+    }
+    st.session_state.rings.insert(0, genesis_ring)
+    st.success("✅ Genesis Block (Ring 0) has been sealed as the permanent foundation.")
 
 tab1, tab2, tab3 = st.tabs(["Propose Ring", "Living Timeline", "🤖 Ask the Organism"])
 
@@ -32,13 +52,13 @@ with tab1:
         else:
             final_content = content
         ring = {
-            "index": len(st.session_state.rings) + 1,
+            "index": len(st.session_state.rings),
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "payload": final_content,
             "researcher_note": researcher_note,
         }
         st.session_state.rings.append(ring)
-        st.success("✅ Ring sealed forever!")
+        st.success("✅ Ring sealed forever! The organism just grew wiser.")
         st.rerun()
 
 with tab2:
@@ -52,19 +72,16 @@ with tab2:
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Download Full Chain as CSV", csv, "science_chain.csv", "text/csv")
     else:
-        st.info("No rings yet — propose the first one above!")
+        st.info("No rings yet — the Genesis Block will appear automatically.")
 
 with tab3:
     st.subheader("🤖 Ask the Organism")
-    query = st.text_input("Ask anything about your accumulated research", "What patterns do you see in biotensegrity?")
+    query = st.text_input("Ask anything about your accumulated research", "What patterns do you see?")
     if st.button("Ask the Organism"):
-        with st.spinner("Thinking through the Living Theory Soul..."):
-            rings_text = "\n\n".join([f"Ring {r['index']}: {r['payload']}" for r in st.session_state.rings])
-            st.write("**Relevant Rings:**")
-            for r in st.session_state.rings[-5:]:
-                st.write(f"• {r['payload'][:200]}...")
+        with st.spinner("Consulting the Living Theory Soul..."):
+            st.write("**Genesis Block (Ring 0) reminder:**")
+            st.caption(st.session_state.rings[0]["payload"])
             st.write("**Organism Response:**")
-            st.write("Based on the sealed Rings, here is a synthesized insight...")
-            # (We can upgrade this to real LLM later)
+            st.write("The organism is reflecting on your query in light of its foundational commitment...")
 
-st.caption("Data is persistent. Refresh the page — your Rings stay here.")
+st.caption("Data persists in this session. The Genesis Block is now permanently part of the organism.")
